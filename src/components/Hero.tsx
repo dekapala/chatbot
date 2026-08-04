@@ -116,7 +116,7 @@ export function Hero() {
             transition={{ duration: 0.6, delay: 0.15 }}
             className="relative z-10"
           >
-            <div className="absolute -inset-1 rounded-3xl bg-gradient-to-r from-indigo-500 via-emerald-500 to-teal-500 opacity-25 blur-xl"></div>
+            <div className="pointer-events-none absolute -inset-1 rounded-3xl bg-gradient-to-r from-indigo-500 via-emerald-500 to-teal-500 opacity-25 blur-xl"></div>
             <ChatWidget />
           </motion.div>
         </div>

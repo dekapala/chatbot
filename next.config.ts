@@ -1,7 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  output: "export",
+  /* Cloudflare Worker / OpenNext Deployment Config */
   images: {
     unoptimized: true,
   },

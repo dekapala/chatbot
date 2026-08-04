@@ -12,196 +12,32 @@ interface Message {
   time: string;
 }
 
-interface ResponseResult {
-  text: string;
-  suggestions: string[];
-}
+const DEFAULT_SUGGESTIONS = [
+  "🛍️ Ver Productos & Catálogo",
+  "🚚 Envíos y Retiros",
+  "💳 Medios de Pago & Cuotas",
+  "🗓️ Agendar un Turno",
+];
 
-function normalize(text: string): string {
-  return text.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-}
+async function askAssistant(
+  message: string,
+  history: { role: "user" | "assistant"; content: string }[],
+): Promise<string> {
+  const res = await fetch("/api/chat", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ message, history }),
+  });
 
-function processConversationalIntent(userText: string): ResponseResult {
-  const t = normalize(userText.toLowerCase().trim());
-
-  // 1. Saludos iniciales
-  if (
-    t.includes("hola") ||
-    t.includes("buenas") ||
-    t.includes("buen dia") ||
-    t.includes("que tal") ||
-    t === "hola!"
-  ) {
-    return {
-      text: "¡Hola, cómo estás! 😊 Qué gusto saludarte. Soy Sofi. Estoy acá para ayudarte a consultar productos, precios, envíos o agendar turnos. ¿De qué te gustaría hablar hoy?",
-      suggestions: [
-        "🛍️ Ver Productos & Catálogo",
-        "🚚 Envíos y Retiros",
-        "💳 Medios de Pago & Cuotas",
-        "🗓️ Agendar un Turno",
-      ],
-    };
+  if (!res.ok) {
+    throw new Error("chat request failed");
   }
 
-  // 2. Productos y Catálogo
-  if (
-    t.includes("producto") ||
-    t.includes("catalogo") ||
-    t.includes("comida") ||
-    t.includes("ropa") ||
-    t.includes("flores") ||
-    t.includes("combo") ||
-    t.includes("que tienen")
-  ) {
-    return {
-      text: "¡Buenísimo! 📦 Te cuento: tenemos nuestro catálogo estrella de la temporada. Por ejemplo: el Combo Regalo ($12.500), Arreglos Especiales ($18.000) o Pases Libres ($22.000/mes). ¿Te interesa saber los detalles o precios de alguno?",
-      suggestions: [
-        "🎁 Ver Combo Regalo ($12.500)",
-        "🌸 Ver Arreglo Especial ($18.000)",
-        "💸 Ver Promociones 15% OFF",
-      ],
-    };
-  }
-
-  // 3. Confirmación de compra / reserva
-  if (
-    t.includes("quiero") ||
-    t.includes("reservame") ||
-    t.includes("comprar") ||
-    t.includes("si, reservame") ||
-    t.includes("me interesa") ||
-    t.includes("combo regalo")
-  ) {
-    return {
-      text: "¡Excelente elección! 🎉 El Combo Regalo es nuestro favorito. Incluye envoltorio especial, tarjeta dedicatoria y envío express. ¿A qué nombre te anoto la reserva y por qué zona te gustaría recibirlo?",
-      suggestions: [
-        "🛵 Enviar a Palermo / CABA hoy",
-        "🏪 Retirar por el local",
-        "💳 Ver opciones de pago",
-      ],
-    };
-  }
-
-  // 4. Envíos y Retiros
-  if (
-    t.includes("envio") ||
-    t.includes("rappi") ||
-    t.includes("pedidosya") ||
-    t.includes("palermo") ||
-    t.includes("caba") ||
-    t.includes("gba") ||
-    t.includes("domicilio")
-  ) {
-    return {
-      text: "¡Hacemos envíos en el día! 🚚 Si estás en CABA o GBA y pedís antes de las 15hs, te llega hoy en moto ($2.500). Sino podés enviar un Rappi o PedidosYa a retirar por nuestro local en Palermo sin cargo. ¿Te paso el CBU o preferís cuotas?",
-      suggestions: [
-        "📋 Pasar CBU / Transferencia (15% OFF)",
-        "💳 Pagar en 3 o 6 Cuotas",
-        "🏪 Ver dirección del local",
-      ],
-    };
-  }
-
-  // 5. Medios de Pago y Cuotas
-  if (
-    t.includes("pago") ||
-    t.includes("cuota") ||
-    t.includes("efectivo") ||
-    t.includes("tarjeta") ||
-    t.includes("descuento") ||
-    t.includes("cbu") ||
-    t.includes("transferencia") ||
-    t.includes("mercado pago")
-  ) {
-    return {
-      text: "Aceptamos todas las tarjetas de crédito con 3 y 6 cuotas sin interés 💳. Y si abonás por transferencia o efectivo en el local, ¡tenés un 15% OFF de regalo! ($10.625 final). ¿Anotamos tu pedido?",
-      suggestions: [
-        "¡Sí, anotame el pedido!",
-        "📋 Enviar datos del CBU",
-        "⏰ Ver horarios de atención",
-      ],
-    };
-  }
-
-  // 6. Turnos / Agenda
-  if (
-    t.includes("turno") ||
-    t.includes("agenda") ||
-    t.includes("reserva") ||
-    t.includes("cita") ||
-    t.includes("hora")
-  ) {
-    return {
-      text: "¡Genial! 🗓️ Atendemos turnos de Lunes a Sábados. Tenemos disponibilidad hoy a las 16:00 hs o mañana a las 11:30 hs. ¿Qué horario te queda más cómodo?",
-      suggestions: [
-        "⏰ Hoy a las 16:00 hs",
-        "⏰ Mañana a las 11:30 hs",
-        "📍 Ver ubicación del local",
-      ],
-    };
-  }
-
-  // 7. Horarios y Ubicación
-  if (
-    t.includes("horario") ||
-    t.includes("local") ||
-    t.includes("direccion") ||
-    t.includes("donde") ||
-    t.includes("abren")
-  ) {
-    return {
-      text: "Estamos en Av. Santa Fe 1820, Palermo (CABA) 🏪. Atendemos de corrido de Lunes a Sábados de 9:30 a 19:30 hs. Si venís medio justo cerca del cierre avisame y te aguardamos 10 minutos. ¡Te esperamos!",
-      suggestions: [
-        "🛵 Consultar Envíos a domicilio",
-        "🛍️ Ver Productos en stock",
-        "🙌 Hablar con un humano",
-      ],
-    };
-  }
-
-  // 8. Atención humana
-  if (
-    t.includes("humano") ||
-    t.includes("persona") ||
-    t.includes("operador") ||
-    t.includes("hablar")
-  ) {
-    return {
-      text: "¡Obvio! 🙌 En Easybot, cuando una consulta requiere toque humano, el bot transfiere la conversación en 1 segundo a un operador de tu equipo con todo el historial guardado. ¿Querés que probemos la prueba de 14 días?",
-      suggestions: [
-        "🚀 Probar Easybot Gratis 14 Días",
-        "🔄 Reiniciar conversación",
-      ],
-    };
-  }
-
-  // 9. Agradecimiento / Cierre
-  if (
-    t.includes("gracias") ||
-    t.includes("genial") ||
-    t.includes("buenisimo") ||
-    t.includes("joya") ||
-    t.includes("barbaro") ||
-    t.includes("chau")
-  ) {
-    return {
-      text: "¡De nada! Fue un gustazo charlar con vos. 🥰 Como pudiste comprobar, podés mantener una conversación fluida, amable y con alta tasa de ventas 100% en automático. ¿Querés probarlo en tu negocio?",
-      suggestions: [
-        "🚀 Probar 14 Días Gratis sin Tarjeta",
-        "🔄 Reiniciar la charla",
-      ],
-    };
-  }
-
-  // Fallback Inteligente y Cálido para cualquier otro texto
-  return {
-    text: `¡Entendido! 👌 Sobre eso que comentás, podés cargar las respuestas exactas de tu negocio en Easybot subiendo un PDF o link en 3 minutos. ¿Te gustaría que probemos cotizar un envío o ver los medios de pago?`,
-    suggestions: [
-      "🛍️ Ver Productos en Stock",
-      "🚚 Consultar Envíos en el día",
-      "💳 Medios de Pago & Cuotas",
-    ],
-  };
+  const data: { reply?: string } = await res.json();
+  return (
+    data.reply?.trim() ||
+    "Perdón, no te pude responder eso. ¿Probamos con otra pregunta?"
+  );
 }
 
 export function ChatWidget() {
@@ -214,12 +50,7 @@ export function ChatWidget() {
       time: "",
     },
   ]);
-  const [suggestions, setSuggestions] = useState<string[]>([
-    "🛍️ Ver Productos & Catálogo",
-    "🚚 Envíos y Retiros",
-    "💳 Medios de Pago & Cuotas",
-    "🗓️ Agendar un Turno",
-  ]);
+  const [suggestions] = useState<string[]>(DEFAULT_SUGGESTIONS);
   const [isTyping, setIsTyping] = useState(false);
   const [inputVal, setInputVal] = useState("");
   const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -253,7 +84,7 @@ export function ChatWidget() {
     );
   }, []);
 
-  const handleSendMessage = (textToSend: string) => {
+  const handleSendMessage = async (textToSend: string) => {
     if (!textToSend.trim()) return;
 
     // Reset Chat Trigger
@@ -266,12 +97,6 @@ export function ChatWidget() {
           time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
         },
       ]);
-      setSuggestions([
-        "🛍️ Ver Productos & Catálogo",
-        "🚚 Envíos y Retiros",
-        "💳 Medios de Pago & Cuotas",
-        "🗓️ Agendar un Turno",
-      ]);
       return;
     }
 
@@ -282,23 +107,32 @@ export function ChatWidget() {
       time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
     };
 
+    const history = messages.map((m) => ({
+      role: (m.sender === "user" ? "user" : "assistant") as "user" | "assistant",
+      content: m.text,
+    }));
+
     setMessages((prev) => [...prev, userMsg]);
     setInputVal("");
     setIsTyping(true);
 
-    setTimeout(() => {
-      const result = processConversationalIntent(textToSend);
-      const botMsg: Message = {
-        id: (Date.now() + 1).toString(),
-        sender: "bot",
-        text: result.text,
-        time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-      };
+    let replyText: string;
+    try {
+      replyText = await askAssistant(textToSend, history);
+    } catch {
+      replyText =
+        "Uy, tuve un problema para responder. ¿Podés intentar de nuevo en un momento?";
+    }
 
-      setMessages((prev) => [...prev, botMsg]);
-      setSuggestions(result.suggestions);
-      setIsTyping(false);
-    }, 850);
+    const botMsg: Message = {
+      id: (Date.now() + 1).toString(),
+      sender: "bot",
+      text: replyText,
+      time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+    };
+
+    setMessages((prev) => [...prev, botMsg]);
+    setIsTyping(false);
   };
 
   const channelStyles = {

@@ -1,11 +1,8 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "chatbot",
+  "name": "chatbot1",
   "main": "worker.js",
   "compatibility_date": "2026-08-04",
-  "compatibility_flags": [
-    "nodejs_compat"
-  ],
   "assets": {
     "directory": "out",
     "binding": "ASSETS"

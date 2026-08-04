@@ -59,11 +59,18 @@ export function FeatureTabs() {
             ARQUITECTURA DE SERVICIO • TODO LO QUE NECESITÁS SABER
           </span>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-white">
-            Diseñado en cuadrillas para escalar tu atención
+            Elegí tu configuración ideal
           </h2>
           <p className="text-zinc-400 text-base sm:text-lg">
-            Una suite modular que une inteligencia artificial, velocidad de respuesta y control total sin complejidad técnica.
+            La mayoría de las PyMEs arranca con Plan Base + Canales unificados, y suma Analítica o Módulos cuando quiere medir resultados o crecer. Armá la combinación que se ajuste a tu negocio.
           </p>
+          <a
+            href="#precios"
+            className="inline-flex items-center gap-2 pt-2 text-sm font-semibold text-emerald-300 hover:text-emerald-200 transition-colors"
+          >
+            Ver precios y valor de cada configuración
+            <span aria-hidden>→</span>
+          </a>
         </div>
 
         {/* Bento Grid Layout */}

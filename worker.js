@@ -118,9 +118,12 @@ async function handleChat(request, env) {
   try {
     const result = await env.AI.run("@cf/zai-org/glm-4.7-flash", {
       messages,
+      max_tokens: 300,
     });
 
-    return Response.json({ reply: result.response ?? "" });
+    const reply = result.response ?? result.choices?.[0]?.message?.content ?? "";
+
+    return Response.json({ reply });
   } catch {
     return Response.json(
       { error: "No se pudo generar la respuesta" },

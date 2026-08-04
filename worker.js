@@ -44,7 +44,7 @@ async function handleChat(request, env) {
     return Response.json({ reply: result.response ?? "" });
   } catch (err) {
     return Response.json(
-      { error: "No se pudo generar la respuesta" },
+      { error: "No se pudo generar la respuesta", detail: String(err?.message ?? err) },
       { status: 502 },
     );
   }

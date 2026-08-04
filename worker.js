@@ -37,14 +37,14 @@ async function handleChat(request, env) {
   ];
 
   try {
-    const result = await env.AI.run("@cf/meta/llama-3.1-8b-instruct", {
+    const result = await env.AI.run("@cf/meta/llama-3.1-8b-instruct-fast", {
       messages,
     });
 
     return Response.json({ reply: result.response ?? "" });
-  } catch (err) {
+  } catch {
     return Response.json(
-      { error: "No se pudo generar la respuesta", detail: String(err?.message ?? err) },
+      { error: "No se pudo generar la respuesta" },
       { status: 502 },
     );
   }
